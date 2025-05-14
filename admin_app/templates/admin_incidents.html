@@ -41,23 +41,29 @@
             <tbody>
                 {% for incident in incidents %}
                 <tr>
-                    <td>{{ incident.id }}</td>
-                    <td>{{ incident.description }}</td>
-                    <td>
-                        {% if incident.status == 'resolved' %}
+                    <td style="vertical-align: middle;">{{ incident.id }}</td>
+                    <td style="vertical-align: middle;">{{ incident.description }}</td>
+                    <td style="vertical-align: middle;">
+                        {% if incident.status == 'resolved' %} 
                             <span class="badge bg-success">Resolved</span>
                         {% else %}
                             <span class="badge bg-warning text-dark">Pending</span>
                         {% endif %}
                     </td>
-                    <td>{{ incident.college_name }}</td>
-                    <td>
+                    <td style="vertical-align: middle;">{{ incident.college_name }}</td>
+                    <td style="vertical-align: middle;">
                         {% if incident.status != 'resolved' %} 
                         <form method="post" action="{{ url_for('resolve_incident', incident_id=incident.id) }}">
+                            <textarea name="admin_comment" placeholder="Add comment" class="form-control mb-1" required></textarea>
                             <button type="submit" class="btn btn-sm btn-outline-success">Resolve</button>
                         </form>
                         {% else %}
-                        <button class="btn btn-sm btn-secondary" disabled>Resolved</button>
+                        <div>
+                            <strong>Comment:</strong> {{ incident.admin_comment or 'N/A' }}<br/>
+                            <strong>Resolved By:</strong> {{ incident.resolved_by or 'N/A' }}<br/>
+                            <strong>Resolved At:</strong> {{ incident.resolved_at or 'N/A' }}
+                        </div>
+                        <button class="btn btn-sm btn-secondary mt-2" disabled>Resolved</button>
                         {% endif %}
                     </td>
                 </tr>

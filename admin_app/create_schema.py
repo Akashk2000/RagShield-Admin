@@ -1,34 +1,23 @@
 import sqlite3
-import os
 
-DATABASE = r'C:\\Users\\akash\\Desktop\\rag\\instance\\database.db'
+conn = sqlite3.connect(r'C:\\Users\\akash\\Desktop\\rag\\instance\\database.db')
+c = conn.cursor()
 
-def create_schema():
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+# Add new columns for admin resolution proof if they don't exist
+try:
+    c.execute("ALTER TABLE incident ADD COLUMN admin_comment TEXT")
+except sqlite3.OperationalError:
+    pass  # Column already exists
 
-    # Create user table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS user (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        college_name TEXT NOT NULL
-    )
-    ''')
+try:
+    c.execute("ALTER TABLE incident ADD COLUMN resolved_by TEXT")
+except sqlite3.OperationalError:
+    pass  # Column already exists
 
-    # Create incident table
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS incident (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        description TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'pending',
-        user_id INTEGER,
-        FOREIGN KEY(user_id) REFERENCES user(id)
-    )
-    ''')
+try:
+    c.execute("ALTER TABLE incident ADD COLUMN resolved_at DATETIME")
+except sqlite3.OperationalError:
+    pass  # Column already exists
 
-    conn.commit()
-    conn.close()
-    print("Database schema created successfully.")
-
-if __name__ == "__main__":
-    create_schema()
+conn.commit()
+conn.close()

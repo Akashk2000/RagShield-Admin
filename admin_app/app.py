@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 DATABASE = r'C:\\Users\\akash\\Desktop\\rag\\instance\\database.db'
-ADMIN_SAFE_CODE = os.getenv('ADMIN_SAFE_CODE', 'ANTIRAG')  # Use environment variable or default
+ADMIN_SAFE_CODE = os.getenv('ADMIN_SAFE_CODE', 'ANTIRAG')  
 
 def get_db():
     db = getattr(g, '_database', None)
@@ -56,7 +56,7 @@ def logout():
 def incidents():
     db = get_db()
     query = """
-    SELECT incident.id, incident.description, incident.status, user.college_name
+    SELECT incident.id, incident.description, incident.status, incident.admin_comment, incident.resolved_by, incident.resolved_at, user.college_name
     FROM incident
     JOIN user ON incident.user_id = user.id
     """
@@ -72,11 +72,24 @@ def colleges():
     colleges = cur.fetchall()
     return render_template('admin_colleges.html', colleges=colleges)
 
+from datetime import datetime
+
 @app.route('/resolve/<int:incident_id>', methods=['POST'])
 @admin_login_required
 def resolve_incident(incident_id):
+    admin_comment = request.form.get('admin_comment', '')
+    resolved_by = 'admin'  # This can be replaced with actual admin identifier from session if available
+    resolved_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     db = get_db()
-    db.execute("UPDATE incident SET status = 'resolved' WHERE id = ?", (incident_id,))
+    db.execute("""
+        UPDATE incident
+        SET status = 'resolved',
+            admin_comment = ?,
+            resolved_by = ?,
+            resolved_at = ?
+        WHERE id = ?
+    """, (admin_comment, resolved_by, resolved_at, incident_id))
     db.commit()
     return redirect(url_for('incidents'))
 
