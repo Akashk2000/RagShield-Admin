@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'rag', 'instance', 'database.db')
+DATABASE = r'C:\\Users\\akash\\Desktop\\rag\\instance\\database.db'
 
 def create_schema():
     conn = sqlite3.connect(DATABASE)
